@@ -1,0 +1,194 @@
+#include "user_database.h"
+
+#include<stdio.h>
+#include <stdlib.h>
+#include<stdlib.h>
+#include<stdbool.h>
+#include<string.h>
+#include<sys/types.h>
+#include<sys/socket.h>
+#include<netinet/in.h>
+#include<unistd.h>
+#include<fcntl.h>
+
+
+void registration(int cfd){
+    struct user_db usr;
+    struct user_db prev;
+    struct reply rpy;
+
+    read(cfd, &usr, sizeof(usr));
+
+    struct flock lock;
+
+    lock.l_start=0;
+    lock.l_len=0;
+    lock.l_whence=SEEK_SET;
+    lock.l_pid=getpid();
+    lock.l_type=F_WRLCK;
+
+    int user_fd=open("db/users", O_RDWR|O_CREAT, 0744);
+    if(user_fd==-1){
+        rpy.statusCode=400;
+        write(cfd, &rpy, sizeof(rpy));
+    } else {
+        int loc=lseek(user_fd, 0, SEEK_END);
+
+        fcntl(user_fd, F_SETLKW, &lock);
+
+        if(loc==0){
+            usr.user_id=1;
+            write(user_fd, &usr, sizeof(usr));
+            printf("User Id is: %d\n", usr.user_id);
+        } else {
+            loc=lseek(user_fd, -1*sizeof(struct user_db), SEEK_END);
+            read(user_fd, &prev, sizeof(prev));
+            usr.user_id=prev.user_id + 1;
+            lseek(user_fd, 0, SEEK_END);
+            write(user_fd, &usr, sizeof(usr));
+            printf("User Id is: %d\n", usr.user_id);
+        }
+
+        lock.l_type=F_UNLCK;
+        fcntl(user_fd, F_SETLK, &lock);
+
+        rpy.statusCode=200;
+        write(cfd, &rpy, sizeof(rpy));
+    }
+    close(user_fd);
+}
+
+void login(int cfd){
+    struct user_db usrAct;
+    struct user_db usrGet;
+    struct reply rpy;
+
+    read(cfd, &usrAct, sizeof(usrAct));
+
+    struct flock lock;
+
+    lock.l_start=(usrAct.user_id-1)*sizeof(struct user_db);
+    lock.l_len=sizeof(struct user_db);
+    lock.l_whence=SEEK_SET;
+    lock.l_pid=getpid();
+    lock.l_type=F_WRLCK;
+
+    int user_fd=open("db/users", O_RDWR|O_CREAT, 0744);
+    if(user_fd==-1){
+        rpy.statusCode=404;
+        write(cfd, &rpy, sizeof(rpy));
+    } else {
+        fcntl(user_fd, F_SETLKW, &lock);
+
+        lseek(user_fd, (usrAct.user_id-1)*sizeof(struct user_db), SEEK_SET);
+        read(user_fd, &usrGet, sizeof(usrGet));
+
+        if(usrGet.user_id==usrAct.user_id && strcmp(usrGet.user_password, usrAct.user_password)==0){
+            if(usrGet.loggen_in==true){
+                if(usrGet.type=='n' || usrGet.type=='a'){
+                    rpy.statusCode=400;
+                }
+            } else {
+                rpy.statusCode=200;
+                lseek(user_fd, (usrAct.user_id-1)*sizeof(struct user_db), SEEK_SET);
+                usrGet.loggen_in=true;
+                write(user_fd, &usrGet, sizeof(usrGet));
+            }
+        } else {
+            rpy.statusCode=400;
+        }
+        write(cfd, &rpy, sizeof(rpy));
+    }
+
+    lock.l_type=F_UNLCK;
+    fcntl(user_fd, F_SETLK, &lock);
+
+    close(user_fd);
+}
+
+void logout(int cfd){
+    struct user_db usrAct;
+    struct user_db usrGet;
+    struct reply rpy;
+
+    read(cfd, &usrAct, sizeof(usrAct));
+
+    struct flock lock;
+
+    lock.l_start=(usrAct.user_id-1)*sizeof(struct user_db);
+    lock.l_len=sizeof(struct user_db);
+    lock.l_whence=SEEK_SET;
+    lock.l_pid=getpid();
+    lock.l_type=F_WRLCK;
+
+    int user_fd=open("db/users", O_RDWR|O_CREAT, 0744);
+    if(user_fd==-1){
+        rpy.statusCode=404;
+        write(cfd, &rpy, sizeof(rpy));
+    } else {
+        fcntl(user_fd, F_SETLKW, &lock);
+
+        lseek(user_fd, (usrAct.user_id-1)*sizeof(struct user_db), SEEK_SET);
+        read(user_fd, &usrGet, sizeof(usrGet));
+
+        if(strcmp(usrGet.user_password, usrAct.user_password)==0){
+            usrGet.loggen_in=false;
+            lseek(user_fd, (usrAct.user_id-1)*sizeof(struct user_db), SEEK_SET);
+            write(user_fd, &usrGet, sizeof(usrGet));
+            rpy.statusCode=200;
+        } else {
+            rpy.statusCode=400;
+        }
+
+        write(cfd, &rpy, sizeof(rpy));
+    }
+
+    lock.l_type=F_UNLCK;
+    fcntl(user_fd, F_SETLK, &lock);
+
+    close(user_fd);
+}
+
+void preview_users(int cfd){
+    struct reply rpy;
+
+    struct flock lock;
+    lock.l_start=0;
+    lock.l_len=0;
+    lock.l_whence=SEEK_SET;
+    lock.l_pid=getpid();
+    lock.l_type=F_RDLCK;
+
+    int user_fd=open("db/users", O_RDWR|O_CREAT, 0744);
+    if(user_fd==-1){
+        rpy.statusCode=404;
+        write(cfd, &rpy, sizeof(rpy));
+    } else {
+        fcntl(user_fd, F_SETLKW, &lock);
+
+        lseek(user_fd, (-1)*sizeof(struct user_db), SEEK_END);
+        struct user_db tp;
+        read(user_fd, &tp, sizeof(tp));
+
+        int total=tp.user_id;
+        struct user_db users[total];
+        for(int i=0;i<total;i++){
+            lseek(user_fd, (i)*sizeof(struct user_db), SEEK_SET);
+            struct user_db tp;
+            read(user_fd, &tp, sizeof(tp));
+            printf("ID: %d and name: %s\n", tp.user_id, tp.user_name);
+            users[i] = tp;
+            printf("ID: %d and name: %s\n", (users[i]).user_id, (users[i]).user_name);
+        }
+        
+        rpy.statusCode=200;
+        rpy.total_users=total;
+        write(cfd, &rpy, sizeof(rpy));
+        write(cfd, &users, sizeof(users));
+    }
+
+    lock.l_type=F_UNLCK;
+    fcntl(user_fd, F_SETLK, &lock);
+
+    close(user_fd);
+}
