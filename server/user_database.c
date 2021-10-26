@@ -53,6 +53,7 @@ void registration(int cfd){
         fcntl(user_fd, F_SETLK, &lock);
 
         rpy.statusCode=200;
+        rpy.user_id=usr.user_id;
         write(cfd, &rpy, sizeof(rpy));
     }
     close(user_fd);
@@ -83,7 +84,7 @@ void login(int cfd){
         lseek(user_fd, (usrAct.user_id-1)*sizeof(struct user_db), SEEK_SET);
         read(user_fd, &usrGet, sizeof(usrGet));
 
-        if(usrGet.user_id==usrAct.user_id && strcmp(usrGet.user_password, usrAct.user_password)==0){
+        if(usrGet.user_id==usrAct.user_id && strcmp(usrGet.user_password, usrAct.user_password)==0 /*&& usrAct.type==usrGet.type*/){
             if(usrGet.loggen_in==true){
                 if(usrGet.type=='n' || usrGet.type=='a'){
                     rpy.statusCode=400;

@@ -2,7 +2,6 @@
 #include "../server/user_database.h"
 #include "admin_user.h"
 #include "normal_user.h"
-#include "agent_user.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -101,25 +100,34 @@ int main_util(int sd, char type)
     {
     case 1:
         rpy = user_login(sd, type);
+        struct user_info user;
         if (rpy.statusCode == 200)
         {
             printf("Successfully loged in\n");
-            if (type == 'n')
+            if (type == 'n' || type == 'm')
             {
-                normal_user_func(sd);
-            }
-            else if (type == 'm')
-            {
-                agent_user_func(sd);
+                if(type=='n'){
+                    user.user_id=rpy.user_id;
+                    user.agent_id=0;
+                    user.admin_id=0;
+                } else {
+                    user.agent_id=rpy.user_id;
+                    user.user_id=0;
+                    user.admin_id=0;
+                }
+                normal_user_func(sd, &user);
             }
             else
             {
-                admin_user_func(sd);
+                user.admin_id=rpy.user_id;
+                user.agent_id=0;
+                user.user_id=0;
+                admin_user_func(sd, &user);
             }
         }
         else
         {
-            printf("Invalid username or password\n");
+            printf("Invalid username, password or type\n");
             main_util(sd, type);
         }
         break;
@@ -129,6 +137,7 @@ int main_util(int sd, char type)
         if (rpy.statusCode == 200)
         {
             printf("Registration successfull, you can login into stystem now!\n");
+            printf("Your ID is: %d\nPlease save it privately\n", rpy.user_id);
         }
         else
         {

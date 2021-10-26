@@ -16,6 +16,7 @@ struct reply
     int statusCode;
     char message[80];
     int total_users;
+    int user_id;
 };
 
 void registration(int cfd);

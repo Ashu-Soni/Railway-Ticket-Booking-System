@@ -1,6 +1,6 @@
 #include "train_database.h"
 
-#include <stdio.h>
+#include<stdio.h>
 #include <stdlib.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -11,151 +11,58 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-void book_ticket(int cfd)
-{
-    struct booking_reply brpy;
-    struct train_booking_db tb;
-    struct train_booking_db prev;
+void add_train(int cfd){
+    struct train_reply trpy;
 
-    read(cfd, &tb, sizeof(tb));
+    struct train trn;
+    struct train prev;
+
+    read(cfd, &trn, sizeof(trn));
 
     struct flock lock;
-
     lock.l_start = 0;
     lock.l_len = 0;
     lock.l_whence = SEEK_SET;
     lock.l_pid = getpid();
     lock.l_type = F_WRLCK;
 
-    int train_b_fd = open("db/train_booking", O_RDWR | O_CREAT, 0744);
-    if (train_b_fd == -1)
+    int train_fd = open("db/trains", O_RDWR | O_CREAT, 0744);
+    if (train_fd == -1)
     {
-        brpy.status_code = 400;
-        write(cfd, &brpy, sizeof(brpy));
-    }
-    else
-    {
-        int loc = lseek(train_b_fd, 0, SEEK_END);
+        trpy.status_code = 400;
+        write(cfd, &trpy, sizeof(trpy));
+    } else {
+        fcntl(train_fd, F_SETLKW, &lock);
 
-        fcntl(train_b_fd, F_SETLKW, &lock);
+        int loc=lseek(train_fd, 0, SEEK_END);
+        if(loc==0){
+            trn.id=1;
+            write(train_fd, &trn, sizeof(trn));
+            printf("Train ID: %d\n", trn.id);
+        } else {
+            loc=lseek(train_fd, (-1)*sizeof(trn), SEEK_END);
 
-        tb.booking_status = 'b';
-        if (loc == 0)
-        {
-            tb.booking_id = 1;
-            write(train_b_fd, &tb, sizeof(tb));
-            printf("Booking ID: %d\n", tb.booking_id);
-        }
-        else
-        {
-            loc = lseek(train_b_fd, (-1) * sizeof(struct train_booking_db), SEEK_END);
-            printf("location: %d\n", loc);
+            read(train_fd, &prev, sizeof(prev));
+            trn.id = prev.id+1;
 
-            read(train_b_fd, &prev, sizeof(prev));
-            tb.booking_id = prev.booking_id + 1;
-
-            loc = lseek(train_b_fd, 0, SEEK_END);
-            printf("location: %d\n", loc);
-            write(train_b_fd, &tb, sizeof(tb));
-            printf("Booking ID: %d\n", tb.booking_id);
+            lseek(train_fd, 0, SEEK_END);
+            write(train_fd, &trn, sizeof(trn));
         }
 
-        lock.l_type = F_UNLCK;
-        fcntl(train_b_fd, F_SETLK, &lock);
+        lock.l_type=F_UNLCK;
+        fcntl(train_fd, F_SETLK, &lock);
 
-        brpy.status_code = 200;
-        write(cfd, &brpy, sizeof(brpy));
+        trpy.status_code=200;
+        write(cfd, &trpy, sizeof(trpy));
     }
 
-    close(train_b_fd);
+    close(train_fd);
 }
 
-void edit_ticket(int cfd)
-{
-    struct booking_reply brpy;
-    struct train_booking_db tb;
+void preview_trains(int cfd){
+    struct train_reply trpy;
 
-    read(cfd, &tb, sizeof(tb));
-    tb.booking_status = 'e';
-
-    struct flock lock;
-    lock.l_len = sizeof(tb);
-    lock.l_pid = getpid();
-    lock.l_start = (tb.booking_id - 1) * sizeof(struct train_booking_db);
-    lock.l_type = F_WRLCK;
-
-    int train_b_fd = open("db/train_booking", O_RDWR | O_CREAT, 0744);
-    if (train_b_fd == -1)
-    {
-        brpy.status_code = 400;
-        write(cfd, &brpy, sizeof(brpy));
-    }
-    else
-    {
-        fcntl(train_b_fd, F_SETLKW, &lock);
-
-        printf("%lu\n", (tb.booking_id - 1) * sizeof(struct train_booking_db));
-        int loc = lseek(train_b_fd, (tb.booking_id - 1) * sizeof(struct train_booking_db), SEEK_SET);
-        printf("Location in update: %d\n", loc);
-        write(train_b_fd, &tb, sizeof(tb));
-
-        lock.l_type = F_ULOCK;
-        fcntl(train_b_fd, F_SETLK, &lock);
-
-        brpy.status_code = 200;
-        write(cfd, &brpy, sizeof(brpy));
-    }
-
-    close(train_b_fd);
-}
-
-void cancel_ticket(int cfd)
-{
-    struct booking_reply brpy;
-    struct train_booking_db tb;
-
-    read(cfd, &tb, sizeof(tb));
-
-    struct flock lock;
-    lock.l_len = sizeof(tb);
-    lock.l_pid = getpid();
-    lock.l_start = (tb.booking_id - 1) * sizeof(struct train_booking_db);
-    lock.l_type = F_WRLCK;
-
-    int train_b_fd = open("db/train_booking", O_RDWR | O_CREAT, 0744);
-    if (train_b_fd == -1)
-    {
-        brpy.status_code = 400;
-        write(cfd, &brpy, sizeof(brpy));
-    }
-    else
-    {
-        fcntl(train_b_fd, F_SETLKW, &lock);
-        printf("cancel location: %lu\n", (tb.booking_id - 1) * sizeof(struct train_booking_db));
-        lseek(train_b_fd, (tb.booking_id - 1) * sizeof(struct train_booking_db), SEEK_SET);
-        struct train_booking_db tp;
-        read(train_b_fd, &tp, sizeof(tp));
-
-        lseek(train_b_fd, (tb.booking_id - 1) * sizeof(struct train_booking_db), SEEK_SET);
-        tp.booking_status = 'c';
-        write(train_b_fd, &tp, sizeof(tp));
-
-        lock.l_type = F_ULOCK;
-        fcntl(train_b_fd, F_SETLK, &lock);
-
-        brpy.status_code = 200;
-        write(cfd, &brpy, sizeof(brpy));
-    }
-
-    close(train_b_fd);
-}
-
-void preview_bookings(int cfd)
-{
-    struct booking_reply brpy;
-    struct train_booking_db tb;
-
-    read(cfd, &tb, sizeof(tb));
+    struct train prev;
 
     struct flock lock;
     lock.l_start = 0;
@@ -164,54 +71,39 @@ void preview_bookings(int cfd)
     lock.l_pid = getpid();
     lock.l_type = F_RDLCK;
 
-    int train_b_fd = open("db/train_booking", O_RDWR | O_CREAT, 0744);
-    if (train_b_fd == -1)
+    int train_fd = open("db/trains", O_RDWR | O_CREAT, 0744);
+    if (train_fd == -1)
     {
-        brpy.status_code = 404;
-        write(cfd, &brpy, sizeof(brpy));
-    }
-    else
-    {
-        fcntl(train_b_fd, F_SETLKW, &lock);
+        trpy.status_code = 400;
+        write(cfd, &trpy, sizeof(trpy));
+    } else {
+        fcntl(train_fd, F_SETLKW, &lock);
 
-        int loc = lseek(train_b_fd, 0, SEEK_END);
-        printf("train_booking location: %d\n", loc);
-        if (loc > 0)
-        {
-            loc = lseek(train_b_fd, (-1) * sizeof(struct train_booking_db), SEEK_END);
-            printf("train_booking location updated: %d\n", loc);
-            struct train_booking_db tp;
-            read(train_b_fd, &tp, sizeof(tp));
+        int loc=lseek(train_fd, 0, SEEK_END);
+        if(loc==0){
+            trpy.status_code=200;
+            trpy.total_trains=0;
+            write(cfd, &trpy, sizeof(trpy));
+        } else {
+            lseek(train_fd, (-1)*sizeof(struct train), SEEK_END);
+            read(train_fd, &prev, sizeof(prev));
 
-            int total = tp.booking_id;
-            printf("last booking ID: %d\n", tp.booking_id);
-            struct train_booking_db bookings[total];
-            int total_cnt = 0;
-            for (int i = 0; i < total; i++)
-            {
-                lseek(train_b_fd, (i) * sizeof(struct train_booking_db), SEEK_SET);
-                struct train_booking_db tp;
-                read(train_b_fd, &tp, sizeof(tp));
-                printf("%d %d and %d\n", tb.user_id, tp.agent_id, tp.booking_id);
-                if (tp.agent_id == tb.agent_id && tp.user_id == tb.user_id && tp.booking_status != 'c')
-                {
-                    bookings[total_cnt++] = tp;
-                }
+            trpy.total_trains=prev.id;
+            struct train trains[prev.id];
+            for(int i=0;i<trpy.total_trains;i++){
+                lseek(train_fd, (i)*sizeof(struct train), SEEK_SET);
+                read(train_fd, &trains[i], sizeof(trains[i]));
             }
 
-            printf("Total count: %d\n", total_cnt);
-            brpy.status_code = 200;
-            brpy.total_bookings = total_cnt;
-            write(cfd, &brpy, sizeof(brpy));
-            write(cfd, &bookings, sizeof(bookings));
-        }
-        lock.l_type = F_UNLCK;
-        fcntl(train_b_fd, F_SETLK, &lock);
+            trpy.status_code=200;
+            write(cfd, &trpy, sizeof(trpy));
 
-        brpy.status_code = 200;
-        brpy.total_bookings = 0;
-        write(cfd, &brpy, sizeof(brpy));
+            write(cfd, &trains, sizeof(trains));
+        }
+
+        lock.l_type=F_UNLCK;
+        fcntl(train_fd, F_SETLK, &lock);
     }
 
-    close(train_b_fd);
+    close(train_fd);
 }

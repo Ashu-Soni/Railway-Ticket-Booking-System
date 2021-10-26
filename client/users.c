@@ -26,22 +26,27 @@ struct reply user_login(int sd, char type)
     usr.type = type;
 
     write(sd, &usr, sizeof(usr));
-
     read(sd, &rpy, sizeof(rpy));
-    printf("Reply from server: %d\n", rpy.statusCode);
+    rpy.user_id=usr.user_id;
 
     return rpy;
 }
 
-struct reply user_logout(int sd, char type)
+struct reply user_logout(int sd, char type, struct user_info *user)
 {
     struct reply rpy;
 
     write(sd, "logout", sizeof("logout"));
 
     struct user_db usr;
-    printf("Enter user ID: ");
-    scanf("%d", &usr.user_id);
+    if(type=='n'){
+        usr.user_id=(*user).user_id;
+    } else if(type=='m'){
+        usr.user_id=(*user).agent_id;
+    } else {
+        usr.user_id=(*user).admin_id;
+    }
+    printf("user ID: %d\n", usr.user_id);
     printf("Enter password: ");
     scanf("%s", usr.user_password);
     usr.type = type;

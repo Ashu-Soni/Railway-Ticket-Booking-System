@@ -1,5 +1,6 @@
 #include "user_database.h"
 #include "train_database.h"
+#include "train_booking.h"
 
 #include<stdio.h>
 #include<stdlib.h>
@@ -104,6 +105,14 @@ void *client_main(void *arg){
 
         if(strcmp(msg, "preview bookings")==0){
             preview_bookings(*cfd);
+        }
+
+        if(strcmp(msg, "add new train")==0){
+            add_train(*cfd);
+        }
+
+        if(strcmp(msg, "preview all train")==0){
+            preview_trains(*cfd);
         }
     }
 

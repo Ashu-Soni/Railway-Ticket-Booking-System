@@ -1,13 +1,13 @@
 #include "normal_user.h"
 #include "../server/user_database.h"
-#include "../server/train_database.h"
+#include "../server/train_booking.h"
 #include "users.h"
 #include "trains.h"
 
 #include<stdio.h>
 #include<stdbool.h>
 
-int normal_user_func(int sd)
+int normal_user_func(int sd, struct user_info *user)
 {
     int ch;
     bool cont = true;
@@ -29,7 +29,7 @@ int normal_user_func(int sd)
         switch (ch)
         {
         case 1:
-            brpy = book(sd);
+            brpy = book(sd, user);
             if (brpy.status_code == 200)
             {
                 printf("Booking Successfull!\n");
@@ -44,7 +44,7 @@ int normal_user_func(int sd)
             break;
 
         case 3:
-            brpy = edit(sd);
+            brpy = edit(sd, user);
             if (brpy.status_code == 200)
             {
                 printf("Booking editted Successfull!\n");
@@ -56,7 +56,7 @@ int normal_user_func(int sd)
             break;
 
         case 4:
-            brpy = cancel(sd);
+            brpy = cancel(sd, user);
             if (brpy.status_code == 200)
             {
                 printf("Booking cancelled Successfull!\n");
@@ -68,11 +68,11 @@ int normal_user_func(int sd)
             break;
 
         case 5:
-            preview_bks(sd);
+            preview_bks(sd, user);
             break;
 
         case 6:
-            rpy = user_logout(sd, 'n');
+            rpy = user_logout(sd, 'n', user);
             if (rpy.statusCode == 200)
             {
                 printf("Successfully loged out\n");
@@ -80,7 +80,7 @@ int normal_user_func(int sd)
             else
             {
                 printf("Invalid userid or password\n");
-                normal_user_func(sd);
+                normal_user_func(sd, user);
             }
             cont = false;
             break;
