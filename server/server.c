@@ -114,6 +114,10 @@ void *client_main(void *arg){
         if(strcmp(msg, "preview all train")==0){
             preview_trains(*cfd);
         }
+
+        if(strcmp(msg, "update user info")==0){
+            edit_user(*cfd);
+        }
     }
 
     return NULL;

@@ -193,3 +193,40 @@ void preview_users(int cfd){
 
     close(user_fd);
 }
+
+void edit_user(int cfd){
+    struct user_db usr;
+    struct reply rpy;
+
+    read(cfd, &usr, sizeof(usr));
+
+    struct flock lock;
+    lock.l_start=(usr.user_id-1)*sizeof(struct user_db);
+    lock.l_len=sizeof(struct user_db);
+    lock.l_whence=SEEK_SET;
+    lock.l_pid=getpid();
+    lock.l_type=F_WRLCK;
+
+    int user_fd=open("db/users", O_RDWR|O_CREAT, 0744);
+    if(user_fd==-1){
+        rpy.statusCode=404;
+        write(cfd, &rpy, sizeof(rpy));
+    } else {
+        fcntl(user_fd, F_SETLKW, &lock);
+
+        int loc=lseek(user_fd, (usr.user_id)*sizeof(struct user_db), SEEK_SET);
+        if(loc==-1){
+            rpy.statusCode=400;
+        }else{
+            write(user_fd, &usr, sizeof(usr));
+            rpy.statusCode=200;
+        }
+
+        lock.l_type=F_UNLCK;
+        fcntl(user_fd, F_SETLK, &lock);
+
+        write(cfd, &rpy, sizeof(rpy));
+    }
+
+    close(user_fd);
+}

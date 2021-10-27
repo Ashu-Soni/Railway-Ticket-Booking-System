@@ -96,10 +96,41 @@ void preview_usrs(int sd)
         struct user_db users[rpy.total_users];
         read(sd, &users, sizeof(users));
 
+        printf("-------------------------------------------------------------------------------------\n");
+        printf("|                           All User Information                                     |\n");
+        printf("-------------------------------------------------------------------------------------\n");
+        printf("|  User ID |  User Name  |  User Email  | User Password | User type | Logged in/not  |\n");
+        printf("-------------------------------------------------------------------------------------\n");
         for (int i = 0; i < rpy.total_users; i++)
         {
-            printf("User ID\tUser Name\tUser Email\tUser Password\tUser type\tLogged in/not\n");
-            printf("%d\t%s\t%s\t%s\t%c\t%d\n", (users[i]).user_id, (users[i]).user_name, (users[i]).user_email, (users[i]).user_password, (users[i]).type, ((users[i]).loggen_in == true));
+            printf("|  %7d |%13s|%14s|%15s| %9c | %13d  |\n", (users[i]).user_id, (users[i]).user_name, (users[i]).user_email, (users[i]).user_password, (users[i]).type, ((users[i]).loggen_in == true));
         }
+        printf("------------------------------------------------------------------------------------\n");
     }
+}
+
+struct reply update_user(int sd){
+    struct reply rpy;
+
+    write(sd, "update user info", sizeof("update user info"));
+
+    struct user_db usr;
+    printf("Enter the type of user: ");
+    getchar();
+    scanf("%c", &usr.type);
+    printf("Enter the user ID: ");
+    scanf("%d", &usr.user_id);
+    printf("Enter Username: ");
+    scanf("%s", usr.user_name);
+    printf("Enter email id: ");
+    scanf("%s", usr.user_email);
+    printf("Enter password: ");
+    scanf("%s", usr.user_password);
+    usr.loggen_in=false;
+
+    write(sd, &usr, sizeof(usr));
+
+    read(sd, &rpy, sizeof(rpy));
+    
+    return rpy;    
 }

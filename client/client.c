@@ -120,8 +120,8 @@ int main_util(int sd, char type)
             else
             {
                 user.admin_id=rpy.user_id;
-                user.agent_id=0;
-                user.user_id=0;
+                user.agent_id=-1;
+                user.user_id=-1;
                 admin_user_func(sd, &user);
             }
         }

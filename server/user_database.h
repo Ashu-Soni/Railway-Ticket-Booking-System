@@ -23,5 +23,6 @@ void registration(int cfd);
 void login(int cfd);
 void logout(int cfd);
 void preview_users(int cfd);
+void edit_user(int cfd);
 
 #endif

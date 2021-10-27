@@ -90,11 +90,16 @@ void preview_bks(int sd, struct user_info *user){
         struct train_booking_db bookings[brpy.total_bookings];
         read(sd, &bookings, sizeof(bookings));
 
+        printf("------------------------------------------------------------------------------------------\n");
+        printf("|                           All Booking Information                                       |\n");
+        printf("------------------------------------------------------------------------------------------\n");
+        printf("|  Booking ID | User ID | Agent ID | Train ID | Total tickets |   Source   | Destination  |\n");
+        printf("------------------------------------------------------------------------------------------\n");
         for (int i = 0; i < brpy.total_bookings; i++)
         {
-            printf("Booking ID\tUser ID\tAgent ID\tTrain ID\tTotal tickets\tSource\tDestination\n");
-            printf("%d\t%d\t%d\t%d\t%d\t%s\t%s\n", bookings[i].booking_id, bookings[i].user_id, bookings[i].agent_id, bookings[i].train_id, bookings[i].total_passanger, bookings[i].source, bookings[i].destination);
+            printf("|  %10d | %7d | %8d | %8d | %13d | %10s |%13s |\n", bookings[i].booking_id, bookings[i].user_id, bookings[i].agent_id, bookings[i].train_id, bookings[i].total_passanger, bookings[i].source, bookings[i].destination);
         }
+        printf("------------------------------------------------------------------------------------------\n");
     }
 }
 
@@ -140,10 +145,16 @@ void preview_trns(int sd){
         struct train trains[trpy.total_trains];
 
         read(sd, &trains, sizeof(trains));
-        printf("Train ID\tName\tFrom\tTo\tCapacity\tvacancy\n");
+
+        printf("---------------------------------------------------------------------------\n");
+        printf("|                       All Train Information                              |\n");
+        printf("---------------------------------------------------------------------------\n");
+        printf("|  Train ID |   Name   |     From     |      To      | Capacity | vacancy  |\n");
+        printf("---------------------------------------------------------------------------\n");
         for(int i=0;i<trpy.total_trains;i++){
-            printf("%d\t%s\t%s\t%s\t%d\t%d\n", trains[i].id, trains[i].name, trains[i].from_, trains[i].to_, trains[i].capacity, trains[i].vacancy);
+            printf("|  %8d | %8s | %12s | %12s | %8d | %7d  |\n", trains[i].id, trains[i].name, trains[i].from_, trains[i].to_, trains[i].capacity, trains[i].vacancy);
         }
+        printf("---------------------------------------------------------------------------\n");
     }
 }
 

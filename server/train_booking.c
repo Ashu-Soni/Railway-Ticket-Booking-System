@@ -200,7 +200,10 @@ void preview_bookings(int cfd)
                 struct train_booking_db tp;
                 read(train_b_fd, &tp, sizeof(tp));
                 printf("%d %d and %d\n", tb.user_id, tp.agent_id, tp.booking_id);
-                if (tp.agent_id == tb.agent_id && tp.user_id == tb.user_id && tp.booking_status != 'c')
+                if(tb.agent_id==-1 && tb.user_id==-1){
+                    bookings[total_cnt++] = tp;    
+                }
+                else if (tp.agent_id == tb.agent_id && tp.user_id == tb.user_id && tp.booking_status != 'c')
                 {
                     bookings[total_cnt++] = tp;
                 }
@@ -210,17 +213,19 @@ void preview_bookings(int cfd)
             brpy.status_code = 200;
             brpy.total_bookings = total_cnt;
             write(cfd, &brpy, sizeof(brpy));
-            write(cfd, &bookings, sizeof(bookings));
+            if(total_cnt>0){
+                write(cfd, &bookings, sizeof(bookings));
+            }
         }
         else
         {
-            lock.l_type = F_UNLCK;
-            fcntl(train_b_fd, F_SETLK, &lock);
-
             brpy.status_code = 200;
             brpy.total_bookings = 0;
             write(cfd, &brpy, sizeof(brpy));
         }
+
+        lock.l_type = F_UNLCK;
+        fcntl(train_b_fd, F_SETLK, &lock);
     }
 
     close(train_b_fd);

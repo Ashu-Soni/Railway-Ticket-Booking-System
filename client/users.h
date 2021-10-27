@@ -13,4 +13,6 @@ struct reply user_logout(int sd, char type, struct user_info *user);
 struct reply user_register(int sd, char type);
 void preview_usrs(int sd);
 
+struct reply update_user(int sd);
+
 #endif

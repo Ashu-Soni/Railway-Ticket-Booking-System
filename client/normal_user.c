@@ -41,6 +41,7 @@ int normal_user_func(int sd, struct user_info *user)
             break;
 
         case 2:
+            preview_trns(sd);
             break;
 
         case 3:

@@ -50,12 +50,22 @@ int admin_user_func(int sd, struct user_info *user)
             break;
 
         case 4:
+            rpy = update_user(sd);
+            if (rpy.statusCode == 200)
+            {
+                printf("User Information updated Successfull!\n");
+            }
+            else
+            {
+                printf("unsuccessfull operation with reason: %s\n", trpy.message);
+            }
             break;
         
         case 5:
             break;
         
         case 6:
+            preview_bks(sd, user);
             break;
 
         case 7:
