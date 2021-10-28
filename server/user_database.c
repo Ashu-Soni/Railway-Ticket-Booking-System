@@ -214,7 +214,7 @@ void edit_user(int cfd){
     } else {
         fcntl(user_fd, F_SETLKW, &lock);
 
-        int loc=lseek(user_fd, (usr.user_id)*sizeof(struct user_db), SEEK_SET);
+        int loc=lseek(user_fd, (usr.user_id-1)*sizeof(struct user_db), SEEK_SET);
         if(loc==-1){
             rpy.statusCode=400;
         }else{

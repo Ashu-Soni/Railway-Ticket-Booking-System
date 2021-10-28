@@ -90,16 +90,16 @@ void preview_bks(int sd, struct user_info *user){
         struct train_booking_db bookings[brpy.total_bookings];
         read(sd, &bookings, sizeof(bookings));
 
-        printf("------------------------------------------------------------------------------------------\n");
-        printf("|                           All Booking Information                                       |\n");
-        printf("------------------------------------------------------------------------------------------\n");
-        printf("|  Booking ID | User ID | Agent ID | Train ID | Total tickets |   Source   | Destination  |\n");
-        printf("------------------------------------------------------------------------------------------\n");
+        printf("---------------------------------------------------------------------------------------------------\n");
+        printf("|                                 All Booking Information                                          |\n");
+        printf("---------------------------------------------------------------------------------------------------\n");
+        printf("|  Booking ID | User ID | Agent ID | Train ID | Total tickets |   Source   | Destination | status  |\n");
+        printf("---------------------------------------------------------------------------------------------------\n");
         for (int i = 0; i < brpy.total_bookings; i++)
         {
-            printf("|  %10d | %7d | %8d | %8d | %13d | %10s |%13s |\n", bookings[i].booking_id, bookings[i].user_id, bookings[i].agent_id, bookings[i].train_id, bookings[i].total_passanger, bookings[i].source, bookings[i].destination);
+            printf("|  %10d | %7d | %8d | %8d | %13d | %10s | %11s | %6c  |\n", bookings[i].booking_id, bookings[i].user_id, bookings[i].agent_id, bookings[i].train_id, bookings[i].total_passanger, bookings[i].source, bookings[i].destination, bookings[i].booking_status);
         }
-        printf("------------------------------------------------------------------------------------------\n");
+        printf("---------------------------------------------------------------------------------------------------\n");
     }
 }
 

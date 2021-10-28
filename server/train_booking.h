@@ -23,5 +23,7 @@ void book_ticket(int cfd);
 void edit_ticket(int cfd);
 void cancel_ticket(int cfd);
 void preview_bookings(int cfd);
+bool check_availability(int train_id, int req, int lastN, char type);
+bool update_vacancy(int train_id, int n);
 
 #endif

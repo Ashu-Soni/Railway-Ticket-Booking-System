@@ -21,9 +21,8 @@ int admin_user_func(int sd, struct user_info *user)
         printf("2. Add Train\n");
         printf("3. Preview Trains\n");
         printf("4. Modify User information\n");
-        printf("5. Delete User\n");
-        printf("6. Preview all bookings\n");
-        printf("7. Logout\n");
+        printf("5. Preview all bookings\n");
+        printf("6. Logout\n");
         printf("enter your choice: ");
         scanf("%d", &ch);
 
@@ -62,13 +61,10 @@ int admin_user_func(int sd, struct user_info *user)
             break;
         
         case 5:
-            break;
-        
-        case 6:
             preview_bks(sd, user);
             break;
 
-        case 7:
+        case 6:
             rpy = user_logout(sd, 'a', user);
             if (rpy.statusCode == 200)
             {
