@@ -27,7 +27,7 @@ System is implemented using the following mechanisms:
 
 Architecture diagram for the system:
 
-![Architecture](docs/Architecture-Diagram.jpg "Architecture")
+![Architecture](documents/Architecture-Diagram.jpg "Architecture")
 
 
 ## Quick Start
