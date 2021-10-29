@@ -133,6 +133,22 @@ struct train_reply add(int sd){
     return trpy;
 }
 
+struct train_reply edit_train(int sd){
+    struct train_reply trpy;
+
+    write(sd, "update train", sizeof("update train"));
+
+    struct train trn=take_train_info();
+    printf("Enter the train ID: ");
+    scanf("%d", &trn.id);
+
+    write(sd, &trn, sizeof(trn));
+
+    read(sd, &trpy, sizeof(trpy));
+
+    return trpy;
+}
+
 void preview_trns(int sd){
     struct train_reply trpy;
 

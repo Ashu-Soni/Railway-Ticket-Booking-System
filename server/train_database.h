@@ -18,6 +18,7 @@ struct train_reply{
 };
 
 void add_train(int cfd);
+void edit_trn(int cfd);
 void preview_trains(int cfd);
 
 #endif

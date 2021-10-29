@@ -17,22 +17,19 @@ int admin_user_func(int sd, struct user_info *user)
 
     while (1)
     {
-        printf("\n\n\n1. Preview Users\n");
-        printf("2. Add Train\n");
-        printf("3. Preview Trains\n");
-        printf("4. Modify User information\n");
-        printf("5. Preview all bookings\n");
-        printf("6. Logout\n");
+        printf("\n\n\n1. Add Train\n");
+        printf("2. Preview Trains\n");
+        printf("3. Modify Train\n");
+        printf("4. Preview Users\n");
+        printf("5. Modify User information\n");
+        printf("6. Preview all bookings\n");
+        printf("7. Logout\n");
         printf("enter your choice: ");
         scanf("%d", &ch);
 
         switch (ch)
         {
         case 1:
-            preview_usrs(sd);
-            break;
-
-        case 2:
             trpy = add(sd);
             if (trpy.status_code == 200)
             {
@@ -44,11 +41,27 @@ int admin_user_func(int sd, struct user_info *user)
             }
             break;
 
-        case 3:
+        case 2:
             preview_trns(sd);
+            break;
+        
+        case 3:
+            trpy = edit_train(sd);
+            if (trpy.status_code == 200)
+            {
+                printf("Updated Successfull!\n");
+            }
+            else
+            {
+                printf("Unsuccessfull with reason: %s\n", trpy.message);
+            }
             break;
 
         case 4:
+            preview_usrs(sd);
+            break;
+
+        case 5:
             rpy = update_user(sd);
             if (rpy.statusCode == 200)
             {
@@ -60,11 +73,11 @@ int admin_user_func(int sd, struct user_info *user)
             }
             break;
         
-        case 5:
+        case 6:
             preview_bks(sd, user);
             break;
 
-        case 6:
+        case 7:
             rpy = user_logout(sd, 'a', user);
             if (rpy.statusCode == 200)
             {

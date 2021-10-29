@@ -118,6 +118,10 @@ void *client_main(void *arg){
         if(strcmp(msg, "update user info")==0){
             edit_user(*cfd);
         }
+
+        if(strcmp(msg, "update train")==0){
+            edit_trn(*cfd);
+        }
     }
 
     return NULL;

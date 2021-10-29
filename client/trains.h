@@ -8,6 +8,7 @@ struct booking_reply cancel(int sd, struct user_info *user);
 void preview_bks(int sd, struct user_info *user);
 
 struct train_reply add(int sd);
+struct train_reply edit_train(int sd);
 void preview_trns(int sd);
 
 struct train_booking_db take_info();
