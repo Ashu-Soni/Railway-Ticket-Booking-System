@@ -14,7 +14,7 @@ simultaneous logins) , administrator
 - Two tier architecture: Server<->Client using **socket programming**
 
 
-## Design and Architecture
+## Design & Architecture
 --------------------------
 
 System is implemented using the following mechanisms:
