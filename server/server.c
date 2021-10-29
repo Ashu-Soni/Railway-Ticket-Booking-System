@@ -17,7 +17,7 @@ void *client_main(void *arg);
 
 int main(){
     struct sockaddr_in server, client;
-    int sfd, cfd;
+    int sfd;
 
     sfd = socket(AF_INET, SOCK_STREAM, 0);
     if(sfd==-1){
@@ -33,29 +33,39 @@ int main(){
 
     listen(sfd, 5);
 
+    pthread_t ts[10];
+    int cfd[10];
+    int i=0;
     while(1){
         int clientS = sizeof(client);
 
-        cfd=accept(sfd, (struct sockaddr *)&client, (socklen_t *)&clientS);
-        if(cfd==-1){
+        printf("Waiting for new client to join\n");
+        cfd[i]=accept(sfd, (struct sockaddr *)&client, (socklen_t *)&clientS);
+        if(cfd[i]==-1){
             printf("Error accepting the client\n");
             return 0;
         }
-        printf("Connected to the client\n");
+        printf("Connected to the new client\n");
 
-        pthread_t t;
-        int pret = pthread_create(&t, NULL, client_main, &cfd);
+        int pret = pthread_create(&ts[i], NULL, client_main, &cfd[i]);
         if (pret == -1)
         {
             perror("Thread creation:");
             exit(1);
         }
 
-        pthread_join(t, NULL);
-        printf("Connection closed with client\n");
-        close(cfd);
+        i++;
+        if(i>=8){
+            printf("Already %d clients are connected, so waiting for some to disconnect!\n", i);
+            i=0;
+            while(i<8){
+                pthread_join(ts[i++], NULL);
+            }
+            i=0;
+            printf("Connection closed with all previous client\n");
+            printf("New clients can connect now!\n\n");
+        }
 
-        break;
     }
 
     close(sfd);
@@ -63,6 +73,7 @@ int main(){
     return 0;
 }
 
+// Server endpoints which works as the database functionalities for clients
 void *client_main(void *arg){
     int *cfd = (int *)arg;
 

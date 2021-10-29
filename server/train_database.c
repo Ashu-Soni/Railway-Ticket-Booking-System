@@ -11,6 +11,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+// These functions can only be invoked by the administrator
+
+// add_train adds new train in the train listing
 void add_train(int cfd)
 {
     struct train_reply trpy;
@@ -42,7 +45,6 @@ void add_train(int cfd)
         {
             trn.id = 1;
             write(train_fd, &trn, sizeof(trn));
-            printf("Train ID: %d\n", trn.id);
         }
         else
         {
@@ -65,6 +67,7 @@ void add_train(int cfd)
     close(train_fd);
 }
 
+// edit_trn edits the existing train information
 void edit_trn(int cfd)
 {
     struct train_reply trpy;
@@ -99,15 +102,18 @@ void edit_trn(int cfd)
 
             struct train tp;
             read(train_fd, &tp, sizeof(tp));
-            tp.vacancy+=(trn.capacity-tp.capacity);
-            if(tp.vacancy>=0){
-                trn.vacancy=tp.vacancy;
+            tp.vacancy += (trn.capacity - tp.capacity);
+            if (tp.vacancy >= 0)
+            {
+                trn.vacancy = tp.vacancy;
                 lseek(train_fd, (trn.id - 1) * sizeof(struct train), SEEK_SET);
                 write(train_fd, &trn, sizeof(trn));
 
-                trpy.status_code=200;
-            } else {
-                trpy.status_code=400;
+                trpy.status_code = 200;
+            }
+            else
+            {
+                trpy.status_code = 400;
             }
 
             lock.l_type = F_UNLCK;

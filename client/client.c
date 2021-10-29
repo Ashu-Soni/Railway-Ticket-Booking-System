@@ -14,6 +14,7 @@
 int main_util(int sd, char type);
 int main_user_choice(int sd);
 
+// main entry point for the client
 int main()
 {
     struct sockaddr_in server;
@@ -33,7 +34,11 @@ int main()
     int ch;
     bool flag = false;
     char type;
-    printf("Online Railway Ticket Booking System");
+    printf("\n---------------------------------------------------------");
+    printf("\n|                                                        |");
+    printf("\n|        Online Railway Ticket Booking System            |");
+    printf("\n|                                                        |");
+    printf("\n---------------------------------------------------------");
 
     main_user_choice(sd);
 
@@ -136,7 +141,7 @@ int main_util(int sd, char type)
         rpy = user_register(sd, type);
         if (rpy.statusCode == 200)
         {
-            printf("Registration successfull, you can login into stystem now!\n");
+            printf("Registration successfull, you can login into stystem now!\n\n");
             printf("Your ID is: %d\nPlease save it privately\n", rpy.user_id);
         }
         else

@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+// book_ticket books new ticket and adds new entry in train_booking databse file
 void book_ticket(int cfd)
 {
     struct booking_reply brpy;
@@ -47,20 +48,16 @@ void book_ticket(int cfd)
             {
                 tb.booking_id = 1;
                 write(train_b_fd, &tb, sizeof(tb));
-                printf("Booking ID: %d\n", tb.booking_id);
             }
             else
             {
                 loc = lseek(train_b_fd, (-1) * sizeof(struct train_booking_db), SEEK_END);
-                printf("location: %d\n", loc);
 
                 read(train_b_fd, &prev, sizeof(prev));
                 tb.booking_id = prev.booking_id + 1;
 
                 loc = lseek(train_b_fd, 0, SEEK_END);
-                printf("location: %d\n", loc);
                 write(train_b_fd, &tb, sizeof(tb));
-                printf("Booking ID: %d\n", tb.booking_id);
             }
             brpy.status_code = 200;
         }
@@ -77,6 +74,7 @@ void book_ticket(int cfd)
     close(train_b_fd);
 }
 
+// edit_ticket edits existing ticket and updates entry in train_booking databse file
 void edit_ticket(int cfd)
 {
     struct booking_reply brpy;
@@ -95,13 +93,11 @@ void edit_ticket(int cfd)
     if (train_b_fd == -1)
     {
         brpy.status_code = 400;
-        write(cfd, &brpy, sizeof(brpy));
     }
     else
     {
         fcntl(train_b_fd, F_SETLKW, &lock);
 
-        printf("%lu\n", (tb.booking_id - 1) * sizeof(struct train_booking_db));
         int loc = lseek(train_b_fd, (tb.booking_id - 1) * sizeof(struct train_booking_db), SEEK_SET);
         if (loc == -1)
         {
@@ -109,8 +105,6 @@ void edit_ticket(int cfd)
         }
         else
         {
-            printf("Location in update: %d\n", loc);
-
             struct train_booking_db tp;
             read(train_b_fd, &tp, sizeof(tp));
 
@@ -125,15 +119,16 @@ void edit_ticket(int cfd)
                 brpy.status_code = 400;
             }
         }
+
         lock.l_type = F_ULOCK;
         fcntl(train_b_fd, F_SETLK, &lock);
-
-        write(cfd, &brpy, sizeof(brpy));
     }
 
+    write(cfd, &brpy, sizeof(brpy));
     close(train_b_fd);
 }
 
+// cancel_ticket cancels the booking for particular user
 void cancel_ticket(int cfd)
 {
     struct booking_reply brpy;
@@ -151,17 +146,17 @@ void cancel_ticket(int cfd)
     if (train_b_fd == -1)
     {
         brpy.status_code = 400;
-        write(cfd, &brpy, sizeof(brpy));
     }
     else
     {
         fcntl(train_b_fd, F_SETLKW, &lock);
-        printf("cancel location: %lu\n", (tb.booking_id - 1) * sizeof(struct train_booking_db));
+
         lseek(train_b_fd, (tb.booking_id - 1) * sizeof(struct train_booking_db), SEEK_SET);
+
         struct train_booking_db tp;
         read(train_b_fd, &tp, sizeof(tp));
 
-        if (tp.agent_id == tb.agent_id && tp.user_id == tb.user_id && update_vacancy(tp.train_id, tp.total_passanger)==true)
+        if (tp.agent_id == tb.agent_id && tp.user_id == tb.user_id && update_vacancy(tp.train_id, tp.total_passanger) == true)
         {
             lseek(train_b_fd, (tb.booking_id - 1) * sizeof(struct train_booking_db), SEEK_SET);
             tp.booking_status = 'c';
@@ -176,12 +171,13 @@ void cancel_ticket(int cfd)
         {
             brpy.status_code = 400;
         }
-        write(cfd, &brpy, sizeof(brpy));
     }
 
+    write(cfd, &brpy, sizeof(brpy));
     close(train_b_fd);
 }
 
+// preview_bookings gives all appropriate booking information
 void preview_bookings(int cfd)
 {
     struct booking_reply brpy;
@@ -207,24 +203,21 @@ void preview_bookings(int cfd)
         fcntl(train_b_fd, F_SETLKW, &lock);
 
         int loc = lseek(train_b_fd, 0, SEEK_END);
-        printf("train_booking location: %d\n", loc);
         if (loc > 0)
         {
             loc = lseek(train_b_fd, (-1) * sizeof(struct train_booking_db), SEEK_END);
-            printf("train_booking location updated: %d\n", loc);
             struct train_booking_db tp;
             read(train_b_fd, &tp, sizeof(tp));
 
             int total = tp.booking_id;
-            printf("last booking ID: %d\n", tp.booking_id);
             struct train_booking_db bookings[total];
             int total_cnt = 0;
             for (int i = 0; i < total; i++)
             {
                 lseek(train_b_fd, (i) * sizeof(struct train_booking_db), SEEK_SET);
+
                 struct train_booking_db tp;
                 read(train_b_fd, &tp, sizeof(tp));
-                printf("%d %d and %d\n", tb.user_id, tp.agent_id, tp.booking_id);
                 if (tb.agent_id == -1 && tb.user_id == -1)
                 {
                     bookings[total_cnt++] = tp;
@@ -235,7 +228,6 @@ void preview_bookings(int cfd)
                 }
             }
 
-            printf("Total count: %d\n", total_cnt);
             brpy.status_code = 200;
             brpy.total_bookings = total_cnt;
             write(cfd, &brpy, sizeof(brpy));
@@ -258,6 +250,7 @@ void preview_bookings(int cfd)
     close(train_b_fd);
 }
 
+// Helper function which check the availability of train tickets
 bool check_availability(int train_id, int req, int lastN, char type)
 {
     struct flock lock1;
@@ -304,7 +297,9 @@ bool check_availability(int train_id, int req, int lastN, char type)
     return true;
 }
 
-bool update_vacancy(int train_id, int n){
+// Helper function which updates the vacancy of tickets for trains
+bool update_vacancy(int train_id, int n)
+{
     struct flock lock1;
     lock1.l_len = sizeof(struct train);
     lock1.l_start = (train_id - 1) * sizeof(struct train);
@@ -318,7 +313,7 @@ bool update_vacancy(int train_id, int n){
     {
         return false;
     }
-    fcntl(train_fd, F_SETLKW, &lock1);   
+    fcntl(train_fd, F_SETLKW, &lock1);
 
     lseek(train_fd, (train_id - 1) * sizeof(struct train), SEEK_SET);
     read(train_fd, &tp, sizeof(tp));
