@@ -50,46 +50,50 @@ int main()
 
 int main_user_choice(int sd)
 {
-    int ch;
-    char type;
-    bool cont = true;
-    printf("\n\n1. Normal User\n");
-    printf("2. Agent\n");
-    printf("3. Administrator\n");
-    printf("4. Quit\n");
-    printf("enter your choice: ");
-    scanf("%d", &ch);
-
-    switch (ch)
+    while (1)
     {
-    case 1:
-        type = 'n';
-        break;
+        int ch;
+        char type;
+        bool cont = true;
+        printf("\n\n1. Normal User\n");
+        printf("2. Agent\n");
+        printf("3. Administrator\n");
+        printf("4. Quit\n");
+        printf("enter your choice: ");
+        scanf("%d", &ch);
 
-    case 2:
-        type = 'm';
-        break;
+        switch (ch)
+        {
+        case 1:
+            type = 'n';
+            break;
 
-    case 3:
-        type = 'a';
-        break;
+        case 2:
+            type = 'm';
+            break;
 
-    case 4:
-        cont = false;
-        break;
+        case 3:
+            type = 'a';
+            break;
 
-    default:
-        printf("Invalid choice, Try again!!\n");
-        main_user_choice(sd);
-        break;
+        case 4:
+            cont = false;
+            break;
+
+        default:
+            printf("Invalid choice, Try again!!\n");
+            main_user_choice(sd);
+            break;
+        }
+
+        if (cont == false)
+        {
+            break;
+        }
+        main_util(sd, type);
     }
-
-    if (cont == false)
-    {
-        return 0;
-    }
-    main_util(sd, type);
-    main_user_choice(sd);
+    
+    return 0;
 }
 
 int main_util(int sd, char type)
@@ -111,22 +115,25 @@ int main_util(int sd, char type)
             printf("Successfully loged in\n");
             if (type == 'n' || type == 'm')
             {
-                if(type=='n'){
-                    user.user_id=rpy.user_id;
-                    user.agent_id=0;
-                    user.admin_id=0;
-                } else {
-                    user.agent_id=rpy.user_id;
-                    user.user_id=0;
-                    user.admin_id=0;
+                if (type == 'n')
+                {
+                    user.user_id = rpy.user_id;
+                    user.agent_id = 0;
+                    user.admin_id = 0;
+                }
+                else
+                {
+                    user.agent_id = rpy.user_id;
+                    user.user_id = 0;
+                    user.admin_id = 0;
                 }
                 normal_user_func(sd, &user);
             }
             else
             {
-                user.admin_id=rpy.user_id;
-                user.agent_id=-1;
-                user.user_id=-1;
+                user.admin_id = rpy.user_id;
+                user.agent_id = -1;
+                user.user_id = -1;
                 admin_user_func(sd, &user);
             }
         }
