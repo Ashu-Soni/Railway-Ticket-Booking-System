@@ -43,6 +43,11 @@ Clone this repository [**Ignore this step if you already have the repository on 
 $ git clone https://github.com/Ashu-Soni/Railway-Ticket-Booking-System.git
 ```
 
+Go into the directory
+```sh
+$ cd Railway-Ticket-Booking-System
+```
+
 ### Either use existing build:
 
 #### Run the server:
