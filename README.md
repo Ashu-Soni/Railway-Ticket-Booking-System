@@ -94,3 +94,7 @@ You can use these new builds by running ```./<server_name>``` for server and ```
 - Modify User information
 - Preview all bookings
 - Logout
+
+## Troubleshooting
+
+There is a possibility of vulnerability in the system because of use of file system for dabase management with locking mechanisms. In this type of cases, remove the database files ```$ rm db/*``` and try again by registering new users.

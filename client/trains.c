@@ -24,57 +24,76 @@ email: ashutosh.soni@iiitb.ac.in
 
 // book(): for booking new ticket for train
 // Internally communicate with the server using read(), write() system calls
-struct booking_reply book(int sd, struct user_info *user){
+struct booking_reply book(int sd, struct user_info *user)
+{
     struct booking_reply brpy;
 
-    write(sd, "book ticket", sizeof("book ticket"));
-
     struct train_booking_db tb;
-    tb=take_info();
-    tb.agent_id=(*user).agent_id;
-    tb.user_id=(*user).user_id;
+    tb = take_info();
+    tb.agent_id = (*user).agent_id;
+    tb.user_id = (*user).user_id;
 
-    write(sd, &tb, sizeof(tb));
+    if (tb.total_passanger < 0)
+    {
+        brpy.status_code = 400;
+    }
+    else
+    {
 
-    read(sd, &brpy, sizeof(brpy));
-    
+        write(sd, "book ticket", sizeof("book ticket"));
+
+        write(sd, &tb, sizeof(tb));
+
+        read(sd, &brpy, sizeof(brpy));
+    }
+
     return brpy;
 }
 
 // edit(): edits existing booking for train
 // Internally communicate with the server using read(), write() system calls
-struct booking_reply edit(int sd, struct user_info *user){
+struct booking_reply edit(int sd, struct user_info *user)
+{
     struct booking_reply brpy;
 
-    write(sd, "edit ticket", sizeof("edit ticket"));
-
     struct train_booking_db tb;
-    tb=take_info();
-    tb.agent_id=(*user).agent_id;
-    tb.user_id=(*user).user_id;
+    tb = take_info();
+    tb.agent_id = (*user).agent_id;
+    tb.user_id = (*user).user_id;
     printf("Enter booking ID: ");
     scanf("%d", &tb.booking_id);
 
-    write(sd, &tb, sizeof(tb));
+    if (tb.total_passanger < 0)
+    {
+        brpy.status_code = 400;
+    }
+    else
+    {
 
-    read(sd, &brpy, sizeof(brpy));
-    
+        write(sd, "edit ticket", sizeof("edit ticket"));
+
+        write(sd, &tb, sizeof(tb));
+
+        read(sd, &brpy, sizeof(brpy));
+    }
+
     return brpy;
 }
 
 // cancel(): cancels existing booking for train
 // Internally communicate with the server using read(), write() system calls
-struct booking_reply cancel(int sd, struct user_info *user){
+struct booking_reply cancel(int sd, struct user_info *user)
+{
     struct booking_reply brpy;
 
     write(sd, "cancel ticket", sizeof("cancel ticket"));
 
     struct train_booking_db tb;
-    
+
     printf("Enter booking ID: ");
     scanf("%d", &tb.booking_id);
-    tb.agent_id=(*user).agent_id;
-    tb.user_id=(*user).user_id;
+    tb.agent_id = (*user).agent_id;
+    tb.user_id = (*user).user_id;
 
     write(sd, &tb, sizeof(tb));
 
@@ -84,14 +103,15 @@ struct booking_reply cancel(int sd, struct user_info *user){
 
 // preview_bks(): shows existing bookings for logged in user
 // Internally communicate with the server using read(), write() system calls
-void preview_bks(int sd, struct user_info *user){
+void preview_bks(int sd, struct user_info *user)
+{
     struct booking_reply brpy;
     struct train_booking_db tb;
 
     write(sd, "preview bookings", sizeof("preview bookings"));
 
-    tb.agent_id=(*user).agent_id;
-    tb.user_id=(*user).user_id;
+    tb.agent_id = (*user).agent_id;
+    tb.user_id = (*user).user_id;
 
     write(sd, &tb, sizeof(tb));
 
@@ -100,7 +120,7 @@ void preview_bks(int sd, struct user_info *user){
     {
         printf("Error getting booking information\n");
     }
-    else if(brpy.total_bookings>0)
+    else if (brpy.total_bookings > 0)
     {
         printf("In the preview\n");
         struct train_booking_db bookings[brpy.total_bookings];
@@ -120,7 +140,8 @@ void preview_bks(int sd, struct user_info *user){
 }
 
 // Helper function that take the booking information from end users
-struct train_booking_db take_info(){
+struct train_booking_db take_info()
+{
     struct train_booking_db tb;
 
     printf("Enter train ID: ");
@@ -138,13 +159,14 @@ struct train_booking_db take_info(){
 // add(): add new train in the list
 // Internally communicate with the server using read(), write() system calls
 // Only callable by the administrator
-struct train_reply add(int sd){
+struct train_reply add(int sd)
+{
     struct train_reply trpy;
 
     write(sd, "add new train", sizeof("add new train"));
 
-    struct train trn=take_train_info();
-    trn.vacancy=trn.capacity;
+    struct train trn = take_train_info();
+    trn.vacancy = trn.capacity;
 
     write(sd, &trn, sizeof(trn));
 
@@ -156,12 +178,13 @@ struct train_reply add(int sd){
 // edit_train(): edits existing train
 // Internally communicate with the server using read(), write() system calls
 // Only callable by the administrator
-struct train_reply edit_train(int sd){
+struct train_reply edit_train(int sd)
+{
     struct train_reply trpy;
 
     write(sd, "update train", sizeof("update train"));
 
-    struct train trn=take_train_info();
+    struct train trn = take_train_info();
     printf("Enter the train ID: ");
     scanf("%d", &trn.id);
 
@@ -174,15 +197,19 @@ struct train_reply edit_train(int sd){
 
 // preview_trns(): preview all listed trains
 // Internally communicate with the server using read(), write() system calls
-void preview_trns(int sd){
+void preview_trns(int sd)
+{
     struct train_reply trpy;
 
     write(sd, "preview all train", sizeof("preview all train"));
 
     read(sd, &trpy, sizeof(trpy));
-    if(trpy.status_code!=200){
+    if (trpy.status_code != 200)
+    {
         printf("Error getting train information\n");
-    } else if(trpy.total_trains>0){
+    }
+    else if (trpy.total_trains > 0)
+    {
         struct train trains[trpy.total_trains];
 
         read(sd, &trains, sizeof(trains));
@@ -192,14 +219,16 @@ void preview_trns(int sd){
         printf("---------------------------------------------------------------------------\n");
         printf("|  Train ID |   Name   |     From     |      To      | Capacity | vacancy  |\n");
         printf("---------------------------------------------------------------------------\n");
-        for(int i=0;i<trpy.total_trains;i++){
+        for (int i = 0; i < trpy.total_trains; i++)
+        {
             printf("|  %8d | %8s | %12s | %12s | %8d | %7d  |\n", trains[i].id, trains[i].name, trains[i].from_, trains[i].to_, trains[i].capacity, trains[i].vacancy);
         }
         printf("---------------------------------------------------------------------------\n");
     }
 }
 
-struct train take_train_info(){
+struct train take_train_info()
+{
     struct train trn;
 
     printf("Enter name of the train: ");
