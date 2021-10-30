@@ -1,3 +1,11 @@
+/*
+Auther and developer: 
+
+Ashutosh Soni - MT2021026
+IIIT Bangalore
+email: ashutosh.soni@iiitb.ac.in
+*/
+
 #include "train_booking.h"
 #include "train_database.h"
 
@@ -206,17 +214,17 @@ void preview_bookings(int cfd)
         if (loc > 0)
         {
             loc = lseek(train_b_fd, (-1) * sizeof(struct train_booking_db), SEEK_END);
-            struct train_booking_db tp;
-            read(train_b_fd, &tp, sizeof(tp));
+            struct train_booking_db tp1;
+            read(train_b_fd, &tp1, sizeof(tp1));
 
-            int total = tp.booking_id;
+            int total = tp1.booking_id;
             struct train_booking_db bookings[total];
             int total_cnt = 0;
+            struct train_booking_db tp;
             for (int i = 0; i < total; i++)
             {
                 lseek(train_b_fd, (i) * sizeof(struct train_booking_db), SEEK_SET);
 
-                struct train_booking_db tp;
                 read(train_b_fd, &tp, sizeof(tp));
                 if (tb.agent_id == -1 && tb.user_id == -1)
                 {

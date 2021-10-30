@@ -1,3 +1,11 @@
+/*
+Auther and developer: 
+
+Ashutosh Soni - MT2021026
+IIIT Bangalore
+email: ashutosh.soni@iiitb.ac.in
+*/
+
 #include "normal_user.h"
 #include "../server/user_database.h"
 #include "../server/train_database.h"

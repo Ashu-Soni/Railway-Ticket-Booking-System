@@ -3,14 +3,14 @@
 ## Description
 --------------
 
-The project aims to develop a ticket booking system that is user-friendly and multi- functional. The project provides following functionalities:
+The project aims to develop a ticket booking system that is user-friendly and multi-functional. The project provides following functionalities:
 
 - All account transactional details and customer information are **stored in files**
 - Login system
 - **Password-protected** administrative access
-- Three types of login should be created: normal account, agent account(multiple
+- Three types of login: normal account, agent account(multiple
 simultaneous logins) , administrator
-- Major user of **system call** rather using the library functions
+- Use of **system call** rather using the library functions wherever possible 
 - Two tier architecture: Server<->Client using **socket programming**
 
 
@@ -27,7 +27,12 @@ System is implemented using the following mechanisms:
 
 Architecture diagram for the system:
 
-![Architecture](documents/Architecture-Diagram.jpg "Architecture")
+![Architecture](documents/diagram.png "Architecture")
+
+
+## Pre-requisites
+-----------------
+- C language
 
 
 ## Quick Start

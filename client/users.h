@@ -1,3 +1,11 @@
+/*
+Auther and developer: 
+
+Ashutosh Soni - MT2021026
+IIIT Bangalore
+email: ashutosh.soni@iiitb.ac.in
+*/
+
 #ifndef USERS_H
 #define USERS_H
 #include<stdbool.h>

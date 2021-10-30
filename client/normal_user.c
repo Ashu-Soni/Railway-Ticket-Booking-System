@@ -1,3 +1,11 @@
+/*
+Auther and developer: 
+
+Ashutosh Soni - MT2021026
+IIIT Bangalore
+email: ashutosh.soni@iiitb.ac.in
+*/
+
 #include "normal_user.h"
 #include "../server/user_database.h"
 #include "../server/train_booking.h"
@@ -7,7 +15,7 @@
 #include<stdio.h>
 #include<stdbool.h>
 
-int normal_user_func(int sd, struct user_info *user)
+int normal_user_func(int sd, char type, struct user_info *user)
 {
     int ch;
     bool cont = true;
@@ -73,7 +81,7 @@ int normal_user_func(int sd, struct user_info *user)
             break;
 
         case 6:
-            rpy = user_logout(sd, 'n', user);
+            rpy = user_logout(sd, type, user);
             if (rpy.statusCode == 200)
             {
                 printf("Successfully loged out\n");
@@ -81,7 +89,7 @@ int normal_user_func(int sd, struct user_info *user)
             else
             {
                 printf("Invalid userid or password\n");
-                normal_user_func(sd, user);
+                normal_user_func(sd, type, user);
             }
             cont = false;
             break;

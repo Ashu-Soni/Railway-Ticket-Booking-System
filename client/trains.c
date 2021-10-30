@@ -1,3 +1,11 @@
+/*
+Auther and developer: 
+
+Ashutosh Soni - MT2021026
+IIIT Bangalore
+email: ashutosh.soni@iiitb.ac.in
+*/
+
 #include "trains.h"
 #include "../server/train_booking.h"
 #include "../server/train_database.h"
@@ -14,6 +22,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+// book(): for booking new ticket for train
+// Internally communicate with the server using read(), write() system calls
 struct booking_reply book(int sd, struct user_info *user){
     struct booking_reply brpy;
 
@@ -31,6 +41,8 @@ struct booking_reply book(int sd, struct user_info *user){
     return brpy;
 }
 
+// edit(): edits existing booking for train
+// Internally communicate with the server using read(), write() system calls
 struct booking_reply edit(int sd, struct user_info *user){
     struct booking_reply brpy;
 
@@ -50,6 +62,8 @@ struct booking_reply edit(int sd, struct user_info *user){
     return brpy;
 }
 
+// cancel(): cancels existing booking for train
+// Internally communicate with the server using read(), write() system calls
 struct booking_reply cancel(int sd, struct user_info *user){
     struct booking_reply brpy;
 
@@ -68,6 +82,8 @@ struct booking_reply cancel(int sd, struct user_info *user){
     return brpy;
 }
 
+// preview_bks(): shows existing bookings for logged in user
+// Internally communicate with the server using read(), write() system calls
 void preview_bks(int sd, struct user_info *user){
     struct booking_reply brpy;
     struct train_booking_db tb;
@@ -103,6 +119,7 @@ void preview_bks(int sd, struct user_info *user){
     }
 }
 
+// Helper function that take the booking information from end users
 struct train_booking_db take_info(){
     struct train_booking_db tb;
 
@@ -118,6 +135,9 @@ struct train_booking_db take_info(){
     return tb;
 }
 
+// add(): add new train in the list
+// Internally communicate with the server using read(), write() system calls
+// Only callable by the administrator
 struct train_reply add(int sd){
     struct train_reply trpy;
 
@@ -133,6 +153,9 @@ struct train_reply add(int sd){
     return trpy;
 }
 
+// edit_train(): edits existing train
+// Internally communicate with the server using read(), write() system calls
+// Only callable by the administrator
 struct train_reply edit_train(int sd){
     struct train_reply trpy;
 
@@ -149,6 +172,8 @@ struct train_reply edit_train(int sd){
     return trpy;
 }
 
+// preview_trns(): preview all listed trains
+// Internally communicate with the server using read(), write() system calls
 void preview_trns(int sd){
     struct train_reply trpy;
 

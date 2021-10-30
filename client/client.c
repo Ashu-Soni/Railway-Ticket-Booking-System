@@ -1,3 +1,11 @@
+/*
+Auther and developer: 
+
+Ashutosh Soni - MT2021026
+IIIT Bangalore
+email: ashutosh.soni@iiitb.ac.in
+*/
+
 #include "users.h"
 #include "../server/user_database.h"
 #include "admin_user.h"
@@ -127,14 +135,14 @@ int main_util(int sd, char type)
                     user.user_id = 0;
                     user.admin_id = 0;
                 }
-                normal_user_func(sd, &user);
+                normal_user_func(sd, type, &user);      // All functionalities for Normal/Agent user
             }
             else
             {
                 user.admin_id = rpy.user_id;
                 user.agent_id = -1;
                 user.user_id = -1;
-                admin_user_func(sd, &user);
+                admin_user_func(sd, &user);             // All functionalities for administrator
             }
         }
         else

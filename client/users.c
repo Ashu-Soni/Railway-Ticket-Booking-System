@@ -1,3 +1,11 @@
+/*
+Auther and developer: 
+
+Ashutosh Soni - MT2021026
+IIIT Bangalore
+email: ashutosh.soni@iiitb.ac.in
+*/
+
 #include "users.h"
 #include "../server/user_database.h"
 
@@ -12,6 +20,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+// user_login(): used for login purpose for all types of users
+// Internally communicate with the server using read(), write() system calls
 struct reply user_login(int sd, char type)
 {
     struct reply rpy;
@@ -32,6 +42,8 @@ struct reply user_login(int sd, char type)
     return rpy;
 }
 
+// user_logout(): used for logout purpose for all types of users
+// Internally communicate with the server using read(), write() system calls
 struct reply user_logout(int sd, char type, struct user_info *user)
 {
     struct reply rpy;
@@ -58,6 +70,8 @@ struct reply user_logout(int sd, char type, struct user_info *user)
     return rpy;
 }
 
+// user_register(): used user registration for all type of users
+// Internally communicate with the server using read(), write() system calls
 struct reply user_register(int sd, char type)
 {
     struct reply rpy;
@@ -81,6 +95,9 @@ struct reply user_register(int sd, char type)
     return rpy;
 }
 
+// preview_usrs(): gives information of all users
+// Internally communicate with the server using read(), write() system calls
+// Only be callable by administrator
 void preview_usrs(int sd)
 {
     struct reply rpy;
@@ -103,12 +120,15 @@ void preview_usrs(int sd)
         printf("-------------------------------------------------------------------------------------\n");
         for (int i = 0; i < rpy.total_users; i++)
         {
-            printf("|  %7d |%13s|%14s|%15s| %9c | %13d  |\n", (users[i]).user_id, (users[i]).user_name, (users[i]).user_email, (users[i]).user_password, (users[i]).type, ((users[i]).loggen_in == true));
+            printf("|  %7d |%13s|%14s|%15s| %9c | %13d  |\n", (users[i]).user_id, (users[i]).user_name, (users[i]).user_email, (users[i]).user_password, (users[i]).type, users[i].loggen_in);
         }
         printf("------------------------------------------------------------------------------------\n");
     }
 }
 
+// update_user(): updates information of existing users
+// Internally communicate with the server using read(), write() system calls
+// Only be callable by administrator
 struct reply update_user(int sd){
     struct reply rpy;
 
@@ -126,7 +146,7 @@ struct reply update_user(int sd){
     scanf("%s", usr.user_email);
     printf("Enter password: ");
     scanf("%s", usr.user_password);
-    usr.loggen_in=false;
+    usr.loggen_in=0;
 
     write(sd, &usr, sizeof(usr));
 

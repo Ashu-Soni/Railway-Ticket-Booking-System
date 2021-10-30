@@ -1,3 +1,11 @@
+/*
+Auther and developer: 
+
+Ashutosh Soni - MT2021026
+IIIT Bangalore
+email: ashutosh.soni@iiitb.ac.in
+*/
+
 #ifndef USER_DATABASE_H
 #define USER_DATABASE_H
 #include<stdbool.h>
@@ -8,7 +16,7 @@ struct user_db{
     char user_email[80];
     char user_password[80];
     char type;
-    bool loggen_in;
+    int loggen_in;
 };
 
 struct reply

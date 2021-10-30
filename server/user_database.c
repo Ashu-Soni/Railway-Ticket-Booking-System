@@ -1,3 +1,11 @@
+/*
+Auther and developer: 
+
+Ashutosh Soni - MT2021026
+IIIT Bangalore
+email: ashutosh.soni@iiitb.ac.in
+*/
+
 #include "user_database.h"
 
 #include <stdio.h>
@@ -19,6 +27,7 @@ void registration(int cfd)
     struct reply rpy;
 
     read(cfd, &usr, sizeof(usr));
+    usr.loggen_in=0;
 
     struct flock lock;
 
@@ -95,20 +104,23 @@ void login(int cfd)
         lseek(user_fd, (usrAct.user_id - 1) * sizeof(struct user_db), SEEK_SET);
         read(user_fd, &usrGet, sizeof(usrGet));
 
-        if (usrGet.user_id == usrAct.user_id && strcmp(usrGet.user_password, usrAct.user_password) == 0 /*&& usrAct.type==usrGet.type*/)
+        if (usrGet.user_id == usrAct.user_id && strcmp(usrGet.user_password, usrAct.user_password) == 0 && usrAct.type==usrGet.type)
         {
-            if (usrGet.loggen_in == true)
+            if (usrGet.loggen_in == 1)
             {
+                printf("user type %c and logged_in %d\n", usrGet.type, usrGet.loggen_in);
                 if (usrGet.type == 'n' || usrGet.type == 'a')
                 {
                     rpy.statusCode = 400;
+                } else {
+                    rpy.statusCode =200;
                 }
             }
             else
             {
                 rpy.statusCode = 200;
                 lseek(user_fd, (usrAct.user_id - 1) * sizeof(struct user_db), SEEK_SET);
-                usrGet.loggen_in = true;
+                usrGet.loggen_in = 1;
                 write(user_fd, &usrGet, sizeof(usrGet));
             }
         }
@@ -157,7 +169,7 @@ void logout(int cfd)
 
         if (strcmp(usrGet.user_password, usrAct.user_password) == 0)
         {
-            usrGet.loggen_in = false;
+            usrGet.loggen_in = 0;
             lseek(user_fd, (usrAct.user_id - 1) * sizeof(struct user_db), SEEK_SET);
             write(user_fd, &usrGet, sizeof(usrGet));
             rpy.statusCode = 200;

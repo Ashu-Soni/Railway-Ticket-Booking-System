@@ -1,3 +1,11 @@
+/*
+Auther and developer: 
+
+Ashutosh Soni - MT2021026
+IIIT Bangalore
+email: ashutosh.soni@iiitb.ac.in
+*/
+
 #ifndef TRAIN_DATABASE_H
 #define TRAIN_DATABASE_H
 #include<stdbool.h>
